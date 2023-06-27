@@ -1,0 +1,51 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+</head>
+<body>
+  <div id="messages"></div>
+  <form id="messageForm">
+    <input type="text" id="messageInput" placeholder="Digite uma mensagem">
+    <select id="encryptionType">
+      <option value="S-DES">S-DES</option>
+      <option value="RC4">RC4</option>
+    </select>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+
+    document.getElementById('messageForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const messageInput = document.getElementById('messageInput');
+      const encryptionType = document.getElementById('encryptionType').value;
+
+      const message = messageInput.value;
+      if (message.trim() !== '') {
+        // Envie a mensagem para o servidor
+        socket.emit('message', { message, encryptionType });
+        messageInput.value = '';
+      }
+    });
+
+    socket.on('message', (data) => {
+      const { message, encryptionType } = data;
+
+      // Realize a descriptografia da mensagem utilizando S-DES ou RC4
+      // ...
+      decryptedMessage = message;
+      const messagesDiv = document.getElementById('messages');
+      const newMessage = document.createElement('p');
+      newMessage.textContent = `Mensagem: ${decryptedMessage} (Criptografia: ${encryptionType})`;
+      messagesDiv.appendChild(newMessage);
+    });
+  </script>
+</body>
+</html>
