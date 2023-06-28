@@ -2,6 +2,27 @@ import React, { useEffect, useState, useRef} from 'react'
 import ChatBar from './ChatBar'
 import ChatBody from './ChatBody'
 import ChatFooter from './ChatFooter'
+import { CBC } from '../assets/js/cbc'
+import { ECB } from '../assets/js/ecb'
+
+const getAlgorithmInstance = (algorithm, key, iv) => {
+  let algorithmInstance;
+  switch (algorithm) {
+    case "SDES-CBC":
+      algorithmInstance = new CBC(key, iv) 
+      break;
+    case "SDES-ECB":
+      algorithmInstance = new ECB(key)
+      break;
+    case "RC4":
+      algorithmInstance = { decrypt: (message) => message, encrypt: (message) => message }
+      break;
+    default:
+      break;
+  }
+
+  return algorithmInstance
+}
 
 const ChatPage = ({socket}) => { 
   const [messages, setMessages] = useState([])
@@ -9,21 +30,9 @@ const ChatPage = ({socket}) => {
   const lastMessageRef = useRef(null);
 
   const handleDecrypt = (message) => {
-    console.log(message)
-    const users = localStorage.getItem("usersLogged")
-    const usersParsed = JSON.parse(users)
-    const otherInstancesUsers = usersParsed.filter(user => user.userName !== message.userName)
-    if (!otherInstancesUsers?.length) {
-      return JSON.parse(message)
-    }
-    const currentUserPrivateKey = localStorage.getItem('privateKey')
-    const messageFirstDecryption = decryptDH(message, currentUserPrivateKey)
-    // const messageSecondDecryption = messageFirstDecryption.algorithm === 'sdes' ? 
-    //   decryptSDES(messageFirstDecryption.text, messageFirstDecryption.key) :
-    //   decryptRC4(messageFirstDecryption.text, messageFirstDecryption.key)
-    // const messageSecondDecryption = decryptRC4(messageFirstDecryption.text, messageFirstDecryption.key)
-    const messageSecondDecryption = messageFirstDecryption.text
-    return { ...messageSecondDecryption, text: messageSecondDecryption }
+    const algorithmInstance = getAlgorithmInstance(message.algorithm, message.key?.split("").map(Number), message.iv?.split("").map(Number))
+    const decryptedMessage = algorithmInstance.decrypt(message.text)
+    return { ...message, text: decryptedMessage }
   }
 
   useEffect(()=> {

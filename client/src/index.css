@@ -24,6 +24,7 @@
 }
 .username__input,
 .key__input,
+.iv__input,
 .algorithm__select {
   padding: 10px;
   width: 50%;

@@ -1,6 +1,6 @@
-const DES = require('./des');
+import { DES } from './des'
 
-class ECB {
+export class ECB {
   constructor(key) {
     this.N_BITS = 8;
     this.key = key;

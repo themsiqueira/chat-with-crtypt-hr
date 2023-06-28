@@ -1,44 +1,64 @@
 import React, {useState} from 'react'
-// import { encryptSDES } from '../assets/js/s-des'
-import { encryptRC4 } from '../assets/js/rc4'
-import { encryptDH } from '../assets/js/dh'
+import { CBC } from '../assets/js/cbc'
+import { ECB } from '../assets/js/ecb'
+
+const getAlgorithmInstance = () => {
+  let algorithmInstance;
+  const key = localStorage.getItem("key")?.split("").map(Number)
+  const iv = localStorage.getItem("iv")?.split("").map(Number)
+  const algorithm = localStorage.getItem("algorithm")
+  switch (algorithm) {
+    case "SDES-CBC":
+      algorithmInstance = new CBC(key, iv) 
+      break;
+    case "SDES-ECB":
+      algorithmInstance = new ECB(key)
+      break;
+    case "RC4":
+      algorithmInstance = { decrypt: (message) => message, encrypt: (message) => message }
+      break;
+    default:
+      break;
+  }
+
+  return algorithmInstance
+}
 
 const ChatFooter = ({socket}) => {
-    const [message, setMessage] = useState("")
-    const handleTyping = () => socket.emit("typing",`${localStorage.getItem("userName")} is typing`)
+  const [message, setMessage] = useState("")
 
-    const handleEncrypt = (message) => {
-      console.log('message', JSON.stringify(message))
-      const users = localStorage.getItem("usersLogged")
-      const usersParsed = JSON.parse(users)
-      const otherInstancesUsers = usersParsed.filter(user => user.userName !== message.userName)
-      // const textEncrypted = message.algorithm === 'sdes' ? encryptSDES(message) : encryptRC4(message)
-      // const textEncrypted = encryptRC4(message.text, message.key)
-      // console.log('textEncryptedRC4', textEncrypted)
-      const textEncrypted = message.text
-      const payloadEncrypted = otherInstancesUsers?.length ? encryptDH(JSON.stringify({ ...message, text: textEncrypted }), otherInstancesUsers[0].sharedKey) : JSON.stringify({ ...message, text: textEncrypted })
-      console.log('payloadEncryptedDH', JSON.stringify(payloadEncrypted))
-      return payloadEncrypted
-    }
+  const algorithmInstance = getAlgorithmInstance()
 
-    const handleSendMessage = (e) => {
-        e.preventDefault()
-        if(message.trim() && localStorage.getItem("userName")) {
-        socket.emit("message", 
-          handleEncrypt(
-            {
-              text: message, 
-              name: localStorage.getItem("userName"), 
-              algorithm: localStorage.getItem("algorithm"),
-              key: localStorage.getItem("key"),
-              id: `${socket.id}${Math.random()}`,
-              socketID: socket.id
-            }
-          )
+  const handleTyping = () => socket.emit("typing",`${localStorage.getItem("userName")} is typing`)
+
+  const handleEncrypt = (message) => {
+    console.log('handleEncrypt', JSON.stringify(message))
+
+    const encryptedMessage = algorithmInstance.encrypt(message.text)
+    console.log(encryptedMessage)
+    return { ...message, text: encryptedMessage }
+  }
+
+  const handleSendMessage = (e) => {
+    e.preventDefault()
+    if(message.trim() && localStorage.getItem("userName")) {
+      socket.emit("message", 
+        handleEncrypt(
+          {
+            text: message, 
+            name: localStorage.getItem("userName"), 
+            algorithm: localStorage.getItem("algorithm"),
+            key: localStorage.getItem("key"),
+            iv: localStorage.getItem("iv"),
+            id: `${socket.id}${Math.random()}`,
+            socketID: socket.id
+          }
         )
-        }
-        setMessage("")
+      )
     }
+    setMessage("")
+  }
+
   return (
     <div className='chat__footer'>
         <form className='form' onSubmit={handleSendMessage}>

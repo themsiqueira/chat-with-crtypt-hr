@@ -1,4 +1,4 @@
-class DES {
+export class DES {
   constructor(key) {
       this.originalKey = key;
       this.k1 = [];
