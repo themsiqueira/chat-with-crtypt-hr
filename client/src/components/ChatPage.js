@@ -2,9 +2,6 @@ import React, { useEffect, useState, useRef} from 'react'
 import ChatBar from './ChatBar'
 import ChatBody from './ChatBody'
 import ChatFooter from './ChatFooter'
-import { decryptDH } from '../assets/js/dh'
-import { decryptRC4 } from '../assets/js/rc4'
-// import { decryptSDES } from '../assets/js/s-des'
 
 const ChatPage = ({socket}) => { 
   const [messages, setMessages] = useState([])

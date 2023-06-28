@@ -7,7 +7,7 @@ import { calculateSharedKey } from '../assets/js/dh/utils/calculate-shared-key'
 const Home = ({socket}) => {
     const navigate = useNavigate()
     const [userName, setUserName] = useState("")
-    const [key, setKey] = useState("")
+    const [key, setKey] = useState('1000000000')
     const [algorithm, setAlgorithm] = useState("")
 
     const handleSubmit = (e) => {
@@ -36,8 +36,9 @@ const Home = ({socket}) => {
         onChange={e => setUserName(e.target.value)}
         />
         <label htmlFor="key">Key</label>
-        <input type="text" 
-        minLength={6} 
+        <input type="number" 
+        minLength={10}
+        maxLength={10} 
         name="key" 
         id='key'
         className='key__input' 
@@ -53,8 +54,9 @@ const Home = ({socket}) => {
         onChange={(e) => setAlgorithm(e.target.value)}
       >
         <option value="">Select an algorithm</option>
-        <option value="sdes">S-DES</option>
-        <option value="rc4">RC4</option>
+        <option value="SDES-ECB">S-DES / ECB</option>
+        <option value="SDES-CBC">S-DES / CBC</option>
+        <option value="RC4">RC4</option>
       </select>
         <button className='home__cta'>SIGN IN</button>
     </form>

@@ -1,33 +1,10 @@
 const DES = require('./des');
 
-
 class CBC {
   constructor(key, IV) {
     this.N_BITS = 8;
     this.key = key;
     this.IV = IV;
-  }
-
-  main() {
-    const readline = require('readline');
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    rl.question('Enter the plaintext: ', (plaintext) => {
-      const s1 = "testando lalala";
-      // const s1 = "f1:9:73:52:be:98:5b:47:4a:2f:a7:b:6e:e2:71:";
-
-      const key = [0, 1, 0, 1, 0, 0, 1, 1, 1, 0];
-      const IV = [0, 1, 1, 1, 0, 1, 0, 1, 1, 0];
-
-      const result = new CBC(key, IV).encrypt(s1);
-      // const result = new CBC(key, IV).decrypt(s1);
-
-      console.log(result);
-      rl.close();
-    });
   }
 
   xor(input1, input2) {
@@ -230,22 +207,9 @@ class CBC {
       return charArray.join('');
     }
   }
-
-  xor(input1, input2) {
-    const output = new Array(input1.length);
-
-    for (let i = 0; i < input1.length; i++) {
-      output[i] = (input1[i] + input2[i]) % 2;
-    }
-    return output;
-  }
 }
 
 const key = [0, 1, 0, 1, 0, 0, 1, 1, 1, 0];
 const IV = [0, 1, 1, 1, 0, 1, 0, 1, 1, 0];
 
 const cbcInstance = new CBC(key, IV);
-const result = cbcInstance.encrypt('testando lalala');
-console.log(result);
-const descryptedText = cbcInstance.decrypt(result);
-console.log(descryptedText);
