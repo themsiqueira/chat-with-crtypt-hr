@@ -4,18 +4,19 @@ import ChatBody from './ChatBody'
 import ChatFooter from './ChatFooter'
 import { CBC } from '../assets/js/cbc'
 import { ECB } from '../assets/js/ecb'
+import { RC4 } from '../assets/js/rc4'
 
 const getAlgorithmInstance = (algorithm, key, iv) => {
   let algorithmInstance;
   switch (algorithm) {
     case "SDES-CBC":
-      algorithmInstance = new CBC(key, iv) 
+      algorithmInstance = new CBC(key?.split("").map(Number), iv?.split("").map(Number)) 
       break;
     case "SDES-ECB":
-      algorithmInstance = new ECB(key)
+      algorithmInstance = new ECB(key?.split("").map(Number))
       break;
     case "RC4":
-      algorithmInstance = { decrypt: (message) => message, encrypt: (message) => message }
+      algorithmInstance = new RC4(key)
       break;
     default:
       break;
@@ -30,7 +31,7 @@ const ChatPage = ({socket}) => {
   const lastMessageRef = useRef(null);
 
   const handleDecrypt = (message) => {
-    const algorithmInstance = getAlgorithmInstance(message.algorithm, message.key?.split("").map(Number), message.iv?.split("").map(Number))
+    const algorithmInstance = getAlgorithmInstance(message.algorithm, message.key, message.iv)
     const decryptedMessage = algorithmInstance.decrypt(message.text)
     return { ...message, text: decryptedMessage }
   }

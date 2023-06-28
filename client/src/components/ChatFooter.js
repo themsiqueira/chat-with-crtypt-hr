@@ -1,21 +1,22 @@
 import React, {useState} from 'react'
 import { CBC } from '../assets/js/cbc'
 import { ECB } from '../assets/js/ecb'
+import { RC4 } from '../assets/js/rc4';
 
 const getAlgorithmInstance = () => {
   let algorithmInstance;
-  const key = localStorage.getItem("key")?.split("").map(Number)
-  const iv = localStorage.getItem("iv")?.split("").map(Number)
+  const key = localStorage.getItem("key")
+  const iv = localStorage.getItem("iv")
   const algorithm = localStorage.getItem("algorithm")
   switch (algorithm) {
     case "SDES-CBC":
-      algorithmInstance = new CBC(key, iv) 
+      algorithmInstance = new CBC(key?.split("").map(Number), iv?.split("").map(Number)) 
       break;
     case "SDES-ECB":
-      algorithmInstance = new ECB(key)
+      algorithmInstance = new ECB(key?.split("").map(Number))
       break;
     case "RC4":
-      algorithmInstance = { decrypt: (message) => message, encrypt: (message) => message }
+      algorithmInstance = new RC4(key)
       break;
     default:
       break;
@@ -32,10 +33,7 @@ const ChatFooter = ({socket}) => {
   const handleTyping = () => socket.emit("typing",`${localStorage.getItem("userName")} is typing`)
 
   const handleEncrypt = (message) => {
-    console.log('handleEncrypt', JSON.stringify(message))
-
     const encryptedMessage = algorithmInstance.encrypt(message.text)
-    console.log(encryptedMessage)
     return { ...message, text: encryptedMessage }
   }
 
