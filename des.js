@@ -207,3 +207,15 @@ class DES {
     return new Crypt(this.originalKey, bits, 'D').execute();
   }
 }
+
+const desInstance = new DES('1010000010');
+
+const playText = 'testestetetete'
+
+const encryptaddo = desInstance.encrypt(playText)
+
+console.log('encryptaddo', encryptaddo)
+
+const decryptaddo = desInstance.decrypt(encryptaddo)
+
+console.log('decryptaddo', decryptaddo)
