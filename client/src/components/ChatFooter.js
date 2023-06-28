@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { CBC } from '../assets/js/cbc'
 import { ECB } from '../assets/js/ecb'
 import { RC4 } from '../assets/js/rc4';
+import { encryptMessageDH } from '../assets/js/dh';
 
 const getAlgorithmInstance = () => {
   let algorithmInstance;
@@ -34,7 +35,9 @@ const ChatFooter = ({socket}) => {
 
   const handleEncrypt = (message) => {
     const encryptedMessage = algorithmInstance.encrypt(message.text)
-    return { ...message, text: encryptedMessage }
+    const sharedSecret = localStorage.getItem("sharedSecret")
+    const usersLogged = JSON.parse(localStorage.getItem("usersLogged"))
+    return usersLogged?.length > 1 ? encryptMessageDH({ ...message, text: encryptedMessage }, sharedSecret?.toString()) : { ...message, text: encryptedMessage };
   }
 
   const handleSendMessage = (e) => {

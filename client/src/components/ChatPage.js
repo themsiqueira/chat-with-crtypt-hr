@@ -5,6 +5,7 @@ import ChatFooter from './ChatFooter'
 import { CBC } from '../assets/js/cbc'
 import { ECB } from '../assets/js/ecb'
 import { RC4 } from '../assets/js/rc4'
+import { decryptMessageDH } from '../assets/js/dh'
 
 const getAlgorithmInstance = (algorithm, key, iv) => {
   let algorithmInstance;
@@ -31,9 +32,12 @@ const ChatPage = ({socket}) => {
   const lastMessageRef = useRef(null);
 
   const handleDecrypt = (message) => {
-    const algorithmInstance = getAlgorithmInstance(message.algorithm, message.key, message.iv)
-    const decryptedMessage = algorithmInstance.decrypt(message.text)
-    return { ...message, text: decryptedMessage }
+    const sharedSecret = localStorage.getItem("sharedSecret")
+    const usersLogged = JSON.parse(localStorage.getItem("usersLogged"))
+    const messageParsed = usersLogged?.length || sharedSecret > 1 ? decryptMessageDH(message, sharedSecret?.toString()) : message
+    const algorithmInstance = getAlgorithmInstance(messageParsed.algorithm, messageParsed.key, messageParsed.iv)
+    const decryptedMessage = algorithmInstance.decrypt(messageParsed.text)
+    return { ...messageParsed, text: decryptedMessage }
   }
 
   useEffect(()=> {
