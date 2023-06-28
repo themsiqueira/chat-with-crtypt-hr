@@ -202,6 +202,8 @@ class Crypt {
   }
 }
 
+module.exports = DES;
+
 const desInstance = new DES([1,0,0,0,0,0,0,0,0,0]);
 
 const playText = 'testestetetete'
